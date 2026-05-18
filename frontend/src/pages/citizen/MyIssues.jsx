@@ -9,7 +9,7 @@ const MyIssues = () => {
 
   const fetchMyIssues = async () => {
     try {
-      const response = await api.get("/issues/my");
+     const response = await api.get("/issues/my-issues");
       setIssues(response.data.issues || []);
     } catch (error) {
       setError(
