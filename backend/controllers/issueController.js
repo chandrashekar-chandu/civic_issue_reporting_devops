@@ -294,12 +294,41 @@ const updateIssueStatus = async (req, res) => {
   }
 };
 
-const assignIssueToDepartment = async (req, res) => {
-  try {
-    const { assignedDepartment } = req.body;
+const Issue = require("../models/Issue");
+const Department = require("../models/Department");
 
+// ==========================================
+// ASSIGN DEPARTMENT TO ISSUE
+// ==========================================
+const assignDepartment = async (req, res) => {
+  try {
+    const { id } = req.params; // Issue ID
+    const { departmentId } = req.body;
+
+    console.log("Issue ID:", id);
+    console.log("Department ID:", departmentId);
+
+    // Validate input
+    if (!departmentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Department ID is required",
+      });
+    }
+
+    // Find the issue
+    const issue = await Issue.findById(id);
+
+    if (!issue) {
+      return res.status(404).json({
+        success: false,
+        message: "Issue not found",
+      });
+    }
+
+    // Find the department by MongoDB _id
     const department = await Department.findById(
-      assignedDepartment
+      departmentId
     );
 
     if (!department) {
@@ -309,50 +338,39 @@ const assignIssueToDepartment = async (req, res) => {
       });
     }
 
-    const issue = await Issue.findById(req.params.id)
-      .populate("reportedBy", "name email");
+    // Assign the department
+    issue.assignedDepartment = department._id;
+    issue.status = "Assigned";
 
-    if (!issue) {
-      return res.status(404).json({
-        success: false,
-        message: "Issue not found",
-      });
-    }
-
-    issue.assignedDepartment = assignedDepartment;
     await issue.save();
 
-    await logActivity(
-      req.user._id,
-      `Assigned issue to ${department.name}`,
+    // Return populated issue
+    const updatedIssue = await Issue.findById(
       issue._id
-    );
+    ).populate("assignedDepartment", "name");
 
-    if (issue.reportedBy) {
-      await createNotification({
-        body: {
-          recipientId: issue.reportedBy._id,
-          message: `Your issue "${issue.title}" has been assigned to ${department.name}.`,
-          issueId: issue._id,
-        },
-      });
-    }
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "Issue assigned successfully",
-      issue,
+      message: "Department assigned successfully",
+      issue: updatedIssue,
     });
   } catch (error) {
     console.error(
-      "Assign Issue Error:",
-      error.message
+      "Assign Department Error:",
+      error
     );
-    res.status(500).json({
+
+    return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: "Server error while assigning department",
+      error: error.message,
     });
   }
+};
+
+module.exports = {
+  // ... keep your other exports here
+  assignDepartment,
 };
 
 const getIssuesByCategory = async (req, res) => {
@@ -442,7 +460,7 @@ module.exports = {
   updateIssueStatus,
 
   // Export with the name expected by issueRoute.js
-  assignDepartment: assignIssueToDepartment,
+  assignDepartment,
 
   getIssuesByCategory,
   getIssuesByStatus,
