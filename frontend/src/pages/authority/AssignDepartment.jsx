@@ -48,31 +48,36 @@ const AssignDepartment = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setSaving(true);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setSuccess("");
+  setSaving(true);
 
-    try {
-     await api.put(`/issues/${id}`, {
-  assignedDepartment: selectedDepartment,
-});
+  try {
+    await api.put(`/issues/${id}/assign`, {
+      departmentId: selectedDepartment,
+    });
 
-      setSuccess("Department assigned successfully!");
+    setSuccess("Department assigned successfully!");
 
-      setTimeout(() => {
-        navigate("/authority/issues");
-      }, 1500);
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Failed to assign department"
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
+    setTimeout(() => {
+      navigate("/authority/issues");
+    }, 1500);
+  } catch (error) {
+    console.error(
+      "Assign Department Error:",
+      error.response?.data || error.message
+    );
+
+    setError(
+      error.response?.data?.message ||
+      "Failed to assign department"
+    );
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (loading) {
     return (
