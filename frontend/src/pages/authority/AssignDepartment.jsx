@@ -55,9 +55,9 @@ const AssignDepartment = () => {
     setSaving(true);
 
     try {
-      await api.put(`/issues/${id}`, {
-        assignedDepartment: selectedDepartment,
-      });
+     await api.put(`/issues/${id}`, {
+  assignedDepartment: selectedDepartment,
+});
 
       setSuccess("Department assigned successfully!");
 
