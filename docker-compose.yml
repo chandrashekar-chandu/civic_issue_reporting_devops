@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: ./backend
+    container_name: civic_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    expose:
+      - "5002"
+    volumes:
+      - uploads_data:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: /api
+    container_name: civic_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  uploads_data:
