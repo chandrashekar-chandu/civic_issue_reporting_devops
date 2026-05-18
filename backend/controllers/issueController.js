@@ -294,8 +294,7 @@ const updateIssueStatus = async (req, res) => {
   }
 };
 
-const Issue = require("../models/Issue");
-const Department = require("../models/Department");
+
 
 // ==========================================
 // ASSIGN DEPARTMENT TO ISSUE
