@@ -16,6 +16,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 30m
           script: |
             cd ~/civic_issue_reporting_devops
 
@@ -27,7 +28,7 @@ jobs:
               sleep 10
             done
 
-            echo "Rebuilding Docker containers..."
+            echo "Rebuilding and restarting containers..."
             docker compose up -d --build
 
             echo "Cleaning unused Docker images..."
